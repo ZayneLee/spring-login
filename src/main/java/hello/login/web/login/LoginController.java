@@ -23,18 +23,18 @@ public class LoginController {
     public String loginForm(@ModelAttribute("loginForm") LoginForm form) {
         return "login/loginForm";
     }
-    
+
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             return "login/loginForm";
         }
 
         Member login = loginService.login(form.getLoginId(), form.getPassword());
         log.info("login={}", login);
 
-        if(login == null) {
-            bindingResult.reject("loginFail","아이디 또는 비번이 맞지 않습니다.");
+        if (login == null) {
+            bindingResult.reject("loginFail", "아이디 또는 비번이 맞지 않습니다.");
             return "login/loginForm";
         }
 
