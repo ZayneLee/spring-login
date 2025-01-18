@@ -1,5 +1,6 @@
 package hello.login.web.session;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,15 +25,30 @@ public class SessionManager {
     }
 
     public Object getSession(HttpServletRequest request) {
+        Cookie cookie = findCookie(request, SESSION_COOKIE_NAME);        
+        if(cookie == null) {
+            return null;
+        }
+        return sessionStore.get(cookie.getValue());
+    }
+
+    public void expireSession(HttpServletRequest request) {
+        Cookie cookie = findCookie(request, SESSION_COOKIE_NAME);
+        if(cookie != null) {
+            sessionStore.remove(cookie.getValue());
+        }
+        
+    }
+
+    private Cookie findCookie(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if(cookies == null) {
             return null;
         }
-        for (Cookie cookie : cookies) {
-            if(cookie.getName().equals(SESSION_COOKIE_NAME)) {
-                return sessionStore.get(cookie.getValue());
-            }
-        }
-        return null;
+        return Arrays.stream(cookies)
+            .filter(cookie -> cookie.getName().equals(cookieName))
+            .findAny()
+            .orElse(null);
+
     }
 }
