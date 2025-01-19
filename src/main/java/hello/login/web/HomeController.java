@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import hello.login.domain.member.Member;
 import hello.login.domain.member.MemberRepository;
+import hello.login.web.session.SessionManager;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Slf4j
@@ -19,13 +21,14 @@ import jakarta.servlet.http.HttpServletResponse;
 public class HomeController {
 
     private final MemberRepository memberRepository;
+    private final SessionManager sessionManager;
 
     // @GetMapping("/")
     public String home() {
         return "Home";
     }
 
-    @GetMapping("/")
+    // @GetMapping("/")
     public String homeLogin(@CookieValue(name = "memberId", required = false) Long memberId, Model model) {
         if (memberId == null) {
             return "Home";
@@ -40,9 +43,28 @@ public class HomeController {
         return "loginHome";
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/")
+    public String homeLoginV2(Model model, HttpServletRequest request) {
+
+        Member member = (Member)sessionManager.getSession(request);
+
+        if (member == null) {
+            return "Home";
+        }
+
+        model.addAttribute("member", member);
+        return "loginHome";
+    }
+
+    // @PostMapping("/logout")
     public String logout(HttpServletResponse response) {
         expireCookie(response, "memberId");
+        return "redirect:/";
+    }
+
+    @PostMapping("/logout")
+    public String logoutV2(HttpServletRequest request) {
+        sessionManager.expireSession(request);
         return "redirect:/";
     }
 
