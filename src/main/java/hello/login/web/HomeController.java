@@ -14,6 +14,7 @@ import hello.login.web.session.SessionManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Slf4j
 @Controller
@@ -43,10 +44,29 @@ public class HomeController {
         return "loginHome";
     }
 
-    @GetMapping("/")
+    // @GetMapping("/")
     public String homeLoginV2(Model model, HttpServletRequest request) {
 
         Member member = (Member)sessionManager.getSession(request);
+
+        if (member == null) {
+            return "Home";
+        }
+
+        model.addAttribute("member", member);
+        return "loginHome";
+    }
+
+    @GetMapping("/")
+    public String homeLoginV3(Model model, HttpServletRequest request) {
+
+        HttpSession session = request.getSession(false);
+
+        if(session == null) {
+            return "Home";
+        }
+
+        Member member = (Member)session.getAttribute(SessionConst.LOGIN_MEMBER);
 
         if (member == null) {
             return "Home";
@@ -62,9 +82,18 @@ public class HomeController {
         return "redirect:/";
     }
 
-    @PostMapping("/logout")
+    // @PostMapping("/logout")
     public String logoutV2(HttpServletRequest request) {
         sessionManager.expireSession(request);
+        return "redirect:/";
+    }
+
+    @PostMapping("/logout")
+    public String logoutV3(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
         return "redirect:/";
     }
 
