@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 import hello.login.domain.member.Member;
 import hello.login.domain.member.MemberRepository;
+import hello.login.web.argumentresolver.Login;
 import hello.login.web.session.SessionManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,8 +78,20 @@ public class HomeController {
         return "loginHome";
     }
 
+    // @GetMapping("/")
+    public String homeLoginV3Spring(
+        @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member, Model model) {
+
+        if (member == null) {
+            return "Home";
+        }
+
+        model.addAttribute("member", member);
+        return "loginHome";
+    }
+
     @GetMapping("/")
-    public String homeLoginV3Spring(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member, Model model) {
+    public String homeLoginV3ArgumentResolver(@Login Member member, Model model) {
 
         if (member == null) {
             return "Home";
